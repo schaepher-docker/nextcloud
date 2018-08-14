@@ -68,15 +68,13 @@ RUN apk add --no-cache --virtual .fetch-deps \
 # gpg key from https://nextcloud.com/nextcloud.asc
     && GPG_KEYS='28806A878AE423A28372792ED75899B9A724937A' \
     && ( gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$GPG_KEYS" \
-            || gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys "$GPG_KEYS" \
-            || gpg --keyserver pgp.mit.edu --recv-keys "$GPG_KEYS" \
-            || gpg --keyserver keyserver.pgp.com --recv-keys "$GPG_KEYS" ) \
+            || gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys "$GPG_KEYS" ) \
     && gpg --batch --verify nextcloud.tar.bz2.asc nextcloud.tar.bz2 \
-    && tar -xjf nextcloud.tar.bz2 -C /usr/src/ \
+    && tar -xjf nextcloud.tar.bz2 -C /var/www/html/ \
     && gpgconf --kill all \
     && rm -r "$GNUPGHOME" nextcloud.tar.bz2.asc nextcloud.tar.bz2 \
-    && rm -rf /usr/src/nextcloud/updater \
-    && mkdir -p /usr/src/nextcloud/data \
-    && mkdir -p /usr/src/nextcloud/custom_apps \
-    && chmod +x /usr/src/nextcloud/occ \
+    && rm -rf /var/www/html/nextcloud/updater \
+    && mkdir -p /var/www/html/nextcloud/data \
+    && mkdir -p /var/www/html/nextcloud/custom_apps \
+    && chmod +x /var/www/html/nextcloud/occ \
     && apk del .fetch-deps
