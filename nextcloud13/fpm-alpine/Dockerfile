@@ -51,10 +51,8 @@ opcache.max_accelerated_files=10000\n\
 opcache.memory_consumption=128\n\
 opcache.save_comments=1\n\
 opcache.revalidate_freq=1' > /usr/local/etc/php/conf.d/opcache-recommended.ini \
-    && mkdir /var/www/data \
-    && chown -R www-data:root /var/www \
-    && chmod -R g=u /var/www
-
+    && mkdir /var/www/data 
+    
 ENV NEXTCLOUD_VERSION 13.0.5
 
 RUN apk add --no-cache --virtual .fetch-deps \
