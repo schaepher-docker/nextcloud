@@ -52,7 +52,7 @@ opcache.memory_consumption=128\n\
 opcache.save_comments=1\n\
 opcache.revalidate_freq=1' > /usr/local/etc/php/conf.d/opcache-recommended.ini \
     && mkdir /var/www/data 
-    
+
 ENV NEXTCLOUD_VERSION 13.0.5
 
 RUN apk add --no-cache --virtual .fetch-deps \
@@ -75,7 +75,8 @@ RUN apk add --no-cache --virtual .fetch-deps \
     && mkdir -p /var/www/html/nextcloud/data \
     && mkdir -p /var/www/html/nextcloud/custom_apps \
     && chmod +x /var/www/html/nextcloud/occ \
-    && apk del .fetch-deps
+    && apk del .fetch-deps \
+    && chown -R www-data:root /var/www
 
 COPY config/* /var/www/html/nextcloud/config/
 COPY *.sh /
