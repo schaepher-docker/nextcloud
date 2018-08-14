@@ -78,3 +78,8 @@ RUN apk add --no-cache --virtual .fetch-deps \
     && mkdir -p /var/www/html/nextcloud/custom_apps \
     && chmod +x /var/www/html/nextcloud/occ \
     && apk del .fetch-deps
+
+COPY config/* /var/www/html/nextcloud/config/
+COPY *.sh /
+
+CMD ["php-fpm"]

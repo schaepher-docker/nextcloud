@@ -1,0 +1,99 @@
+version: '3.5'
+
+services:
+  db:
+    image: mariadb
+    container_name: cloud_mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    env_file:
+      - db.env
+
+  redis:
+    image: redis
+    container_name: cloud_redis
+    restart: always
+    networks:
+      - default
+
+  app:
+    image: schaepher/nextcloud:13.0.5
+    container_name: cloud_app
+    restart: always
+    volumes:
+      - type: volume
+        source: nextcloud
+        target: /var/www/html
+        volume:
+          nocopy: false
+    environment:
+      - MYSQL_HOST=db
+    env_file:
+      - db.env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - default
+
+  web:
+    build: ./nginx
+    container_name: cloud_nginx
+    restart: always
+    volumes:
+      - nextcloud:/var/www/html:ro
+    env_file:
+      - nginx.env
+    depends_on:
+      - app
+    networks:
+      - proxy-tier
+      - default
+
+  proxy:
+    build: ./proxy
+    container_name: cloud_proxy
+    restart: always
+    ports:
+      - 443:443
+    volumes:
+      - certs:/etc/nginx/certs:ro
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - proxy-tier
+    depends_on:
+      - omgwtfssl
+
+  omgwtfssl:
+    image: paulczar/omgwtfssl
+    container_name: cloud_omgwtfssl
+    restart: "no"
+    volumes:
+      - certs:/certs
+    env_file:
+      - ssl.env
+    networks:
+      - proxy-tier
+  
+  frpc:
+    build: ./frpc
+    container_name: cloud_frpc
+    restart: always
+    networks:
+      - proxy-tier
+    depends_on:
+      - proxy
+
+volumes:
+  db:
+  nextcloud:
+  certs:
+  vhost.d:
+  html:
+
+networks:
+  proxy-tier:
